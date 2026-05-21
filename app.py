@@ -256,7 +256,10 @@ class CappedChatMessageHistory(ChatMessageHistory):
         super().add_message(message)
         max_msgs = MAX_HISTORY_TURNS * 2
         if len(self.messages) > max_msgs:
-            self.messages = self.messages[-max_msgs:]
+            keep = self.messages[-max_msgs:]
+            self.clear()
+            for msg in keep:
+                super().add_message(msg)
 
 
 @st.cache_resource(show_spinner=False)
