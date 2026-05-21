@@ -1,0 +1,22 @@
+# Environment & secrets
+.env
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# NOTE: chroma_db/ is intentionally NOT ignored.
+# Commit it to GitHub so Streamlit Cloud has the vector data.
