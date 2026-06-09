@@ -134,8 +134,11 @@ st.markdown("""
     border-color: var(--accent) !important;
     box-shadow: 0 0 0 3px var(--accent-glow) !important;
 }
-[data-testid="stChatInput"] textarea {
-    color: var(--text-primary) !important;
+[data-testid="stChatInput"] textarea,
+[data-testid="stChatInput"] input {
+    color: #e8ecf4 !important;
+    -webkit-text-fill-color: #e8ecf4 !important;
+    caret-color: #e8ecf4 !important;
     background: transparent !important;
 }
 
@@ -408,10 +411,6 @@ with st.sidebar:
             <div class="stat-num">23</div>
             <div class="stat-label">Age</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-num">6d</div>
-            <div class="stat-label">Gym / wk</div>
-        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -487,14 +486,15 @@ STARTER_PROMPTS = [
     "🔗  Share Sikandar's GitHub and portfolio links.",
 ]
 
+active_prompt = None
+
 if not st.session_state.messages:
     st.markdown("<div class='suggest-label'>Suggested questions</div>", unsafe_allow_html=True)
     cols = st.columns(2)
     for i, prompt in enumerate(STARTER_PROMPTS):
         with cols[i % 2]:
             if st.button(prompt, key=f"starter_{i}"):
-                st.session_state.messages.append({"role": "user", "content": prompt})
-                st.rerun()
+                active_prompt = prompt
 
 # ── Render conversation history ───────────────────────────────────────────────
 for msg in st.session_state.messages:
@@ -504,10 +504,13 @@ for msg in st.session_state.messages:
 # ── Chat input ────────────────────────────────────────────────────────────────
 user_input = st.chat_input("Ask anything about Sikandar…")
 
-if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
+# Process either a clicked starter prompt or standard typed input
+chat_trigger = active_prompt or user_input
+
+if chat_trigger:
+    st.session_state.messages.append({"role": "user", "content": chat_trigger})
     with st.chat_message("user"):
-        st.markdown(user_input)
+        st.markdown(chat_trigger)
 
     with st.chat_message("assistant"):
         # Thinking animation while pipeline loads
@@ -528,7 +531,7 @@ if user_input:
             thinking_placeholder.empty()
 
             for chunk in chain.stream(
-                {"input": user_input},
+                {"input": chat_trigger},
                 config={"configurable": {"session_id": st.session_state.session_id}},
             ):
                 full_response += chunk
